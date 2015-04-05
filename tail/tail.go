@@ -11,7 +11,7 @@ import (
 
 var (
 	follow = flag.Bool("f", false, "Follow the files being tailed.")
-	limit  = flag.Int("l", 10, "The number of lines to output from the tailed file")
+	limit  = flag.Int("lines", 10, "The number of lines to output from the tailed file")
 )
 
 func main() {
