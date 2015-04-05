@@ -17,33 +17,29 @@ var (
 func main() {
 	flag.Parse()
 	var filename = flag.Arg(0)
-	var offset int64
-	var fileSize int64
-	var currentLines []string
 
-	fs, err := os.Stat(filename)
+	_, err := os.Stat(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if fileSize < fs.Size() {
-		file, err := os.Open(filename)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
+	outputFromFile(filename, 0)
+}
 
-		_, err = file.Seek(offset, 0)
-		if err != nil {
-			return
-		}
+func outputFromFile(filename string, offset int64) {
+	var currentLines []string
 
-		reader := bufio.NewReader(file)
-		currentLines, offset = tailScan(reader, *limit, offset)
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-		for _, line := range currentLines {
-			fmt.Println(line)
-		}
+	reader := bufio.NewReader(file)
+	currentLines, offset = tailScan(reader, *limit, offset)
+
+	for _, line := range currentLines {
+		fmt.Println(line)
 	}
 }
 
