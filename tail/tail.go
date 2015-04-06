@@ -15,29 +15,36 @@ var (
 	limit  = flag.Int("lines", 10, "The number of lines to output from the tailed file")
 )
 
+type tailedFile struct {
+	file         *os.File
+	offset       int64
+	lastFileSize int64
+}
+
 func main() {
 	flag.Parse()
+	tf := tailedFile{}
+	var err error
 	var filename = flag.Arg(0)
-	var offset int64
-	var lastFileSize int64
 
-	file, err := os.Open(filename)
+	tf.file, err = os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer tf.file.Close()
 
-	offset = seekAndOutput(file, offset)
+	offset := seekAndOutput(tf.file, tf.offset)
+	tf.offset = offset
 
 	for {
-		fs, err := os.Stat(file.Name())
+		fs, err := os.Stat(tf.file.Name())
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if lastFileSize < fs.Size() {
-			offset = seekAndOutput(file, offset)
-			lastFileSize = fs.Size()
+		if tf.lastFileSize < fs.Size() {
+			tf.offset = seekAndOutput(tf.file, tf.offset)
+			tf.lastFileSize = fs.Size()
 		}
 
 		time.Sleep(500 * time.Millisecond)
