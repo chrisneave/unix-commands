@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -17,17 +18,8 @@ var (
 func main() {
 	flag.Parse()
 	var filename = flag.Arg(0)
-
-	_, err := os.Stat(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	outputFromFile(filename, 0)
-}
-
-func outputFromFile(filename string, offset int64) {
-	var currentLines []string
+	var offset int64
+	var lastFileSize int64
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -35,12 +27,39 @@ func outputFromFile(filename string, offset int64) {
 	}
 	defer file.Close()
 
-	reader := bufio.NewReader(file)
-	currentLines, offset = tailScan(reader, *limit, offset)
+	offset = seekAndOutput(file, offset)
+
+	for {
+		fs, err := os.Stat(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if lastFileSize < fs.Size() {
+			offset = seekAndOutput(file, offset)
+			lastFileSize = fs.Size()
+		}
+
+		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+func seekAndOutput(source io.ReadSeeker, offset int64) (newOffset int64) {
+	var currentLines []string
+
+	offset, err := source.Seek(offset, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	reader := bufio.NewReader(source)
+	currentLines, newOffset = tailScan(reader, *limit, offset)
 
 	for _, line := range currentLines {
 		fmt.Println(line)
 	}
+
+	return
 }
 
 func appendAndTail(dst []string, src []string, limit int) []string {
