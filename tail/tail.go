@@ -30,7 +30,7 @@ func main() {
 	offset = seekAndOutput(file, offset)
 
 	for {
-		fs, err := os.Stat(filename)
+		fs, err := os.Stat(file.Name())
 		if err != nil {
 			log.Fatal(err)
 		}
