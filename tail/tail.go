@@ -16,6 +16,7 @@ var (
 )
 
 type tailedFile struct {
+	filename     string
 	file         *os.File
 	offset       int64
 	lastFileSize int64
@@ -23,35 +24,48 @@ type tailedFile struct {
 
 func main() {
 	flag.Parse()
-	tf := tailedFile{}
+	tailedFiles := make([]tailedFile, flag.NArg())
 	var err error
-	var filename = flag.Arg(0)
+	var header string
 
-	tf.file, err = os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer tf.file.Close()
+	for i, arg := range flag.Args() {
+		tailedFiles[i] = tailedFile{filename: arg}
 
-	offset := seekAndOutput(tf.file, tf.offset)
-	tf.offset = offset
-
-	for {
-		fs, err := os.Stat(tf.file.Name())
+		tailedFiles[i].file, err = os.Open(tailedFiles[i].filename)
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer tailedFiles[i].file.Close()
 
-		if tf.lastFileSize < fs.Size() {
-			tf.offset = seekAndOutput(tf.file, tf.offset)
-			tf.lastFileSize = fs.Size()
+		if len(tailedFiles) > 1 {
+			header = fmt.Sprintf("==> %s <==", tailedFiles[i].filename)
+		}
+
+		tailedFiles[i].offset = seekAndOutput(tailedFiles[i].file, tailedFiles[i].offset, header)
+	}
+
+	for {
+		for _, tf := range tailedFiles {
+			fs, err := os.Stat(tf.filename)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if len(tailedFiles) > 1 {
+				header = fmt.Sprintf("==> %s <==", tf.filename)
+			}
+
+			if tf.lastFileSize < fs.Size() {
+				tf.offset = seekAndOutput(tf.file, tf.offset, header)
+				tf.lastFileSize = fs.Size()
+			}
 		}
 
 		time.Sleep(500 * time.Millisecond)
 	}
 }
 
-func seekAndOutput(source io.ReadSeeker, offset int64) (newOffset int64) {
+func seekAndOutput(source io.ReadSeeker, offset int64, header string) (newOffset int64) {
 	var currentLines []string
 
 	offset, err := source.Seek(offset, 0)
@@ -61,6 +75,10 @@ func seekAndOutput(source io.ReadSeeker, offset int64) (newOffset int64) {
 
 	reader := bufio.NewReader(source)
 	currentLines, newOffset = tailScan(reader, *limit, offset)
+
+	if len(header) > 0 {
+		fmt.Println(header)
+	}
 
 	for _, line := range currentLines {
 		fmt.Println(line)
