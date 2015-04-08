@@ -137,7 +137,7 @@ func TestTailScanWithOffset(t *testing.T) {
 func TestTailScanWithOffsetAndTrailingNewLine(t *testing.T) {
 	var oldOffset int64 = 10
 	source := "I have\nthree\nlines\n"
-	var expected = oldOffset + int64(len(source)-1)
+	var expected = oldOffset + int64(len(source))
 	reader := strings.NewReader(source)
 	_, offset := tailScan(reader, 10, oldOffset)
 	if offset != expected {

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -76,7 +77,7 @@ func seekAndOutput(source io.ReadSeeker, offset int64, header string) (newOffset
 	reader := bufio.NewReader(source)
 	currentLines, newOffset = tailScan(reader, *limit, offset)
 
-	if len(header) > 0 {
+	if len(header) > 0 && len(currentLines) > 0 {
 		fmt.Println(header)
 	}
 
@@ -99,10 +100,17 @@ func appendAndTail(dst []string, src []string, limit int) []string {
 
 func tailScan(source io.Reader, limit int, offset int64) (lines []string, newOffset int64) {
 	newOffset = offset
-	scanner := bufio.NewScanner(source)
-	for scanner.Scan() {
-		lines = appendAndTail(lines, []string{scanner.Text()}, limit)
-		newOffset += int64(len(scanner.Text()) + 1)
+	reader := bufio.NewReader(source)
+	for {
+		line, err := reader.ReadString(10)
+		line = strings.TrimSuffix(line, "\n")
+		if len(line) > 0 {
+			lines = appendAndTail(lines, []string{line}, limit)
+		}
+		newOffset += int64(len(line) + 1)
+		if err != nil {
+			break
+		}
 	}
 	// Adjust the offset but ignore any trailing new line
 	newOffset--
