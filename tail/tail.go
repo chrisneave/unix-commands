@@ -51,17 +51,17 @@ func main() {
 				log.Fatal(err)
 			}
 
-			if len(tailedFiles) > 1 {
-				header = fmt.Sprintf("==> %s <==", tf.filename)
-			}
-
-			if tf.lastFileSize < fs.Size() {
-				tf.offset = seekAndOutput(tf.file, tf.offset, header)
-				tf.lastFileSize = fs.Size()
-			}
+			tf.follow(fs.Size(), len(tailedFiles) > 1)
 		}
 
 		time.Sleep(500 * time.Millisecond)
+	}
+}
+
+func (tf *tailedFile) follow(currentSize int64, outputHeader bool) {
+	if tf.lastFileSize < currentSize {
+		tf.offset = seekAndOutput(tf.file, tf.offset, fmt.Sprintf("==> %s <==", tf.filename))
+		tf.lastFileSize = currentSize
 	}
 }
 
