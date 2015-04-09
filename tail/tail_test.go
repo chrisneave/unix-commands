@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 import "strings"
 
 type Example struct {
@@ -142,5 +145,32 @@ func TestTailScanWithOffsetAndTrailingNewLine(t *testing.T) {
 	_, offset := tailScan(reader, 10, oldOffset)
 	if offset != expected {
 		t.Errorf("Expected %d but got %d", expected, offset)
+	}
+}
+
+type writeTailExample struct {
+	source   string
+	lines    int
+	expected string
+}
+
+func TestWriteTail(t *testing.T) {
+	examples := []writeTailExample{
+		writeTailExample{source: "", lines: 1, expected: ""},
+		writeTailExample{source: "Foo\n", lines: 1, expected: "Foo\n"},
+		writeTailExample{source: "Foo", lines: 1, expected: "Foo\n"},
+		writeTailExample{source: "Foo\nBar\n", lines: 1, expected: "Bar\n"},
+		writeTailExample{source: "Foo\nBar\n", lines: 2, expected: "Foo\nBar\n"},
+		writeTailExample{source: "Foo\nBar\n", lines: 3, expected: "Foo\nBar\n"},
+		writeTailExample{source: "Foo\nBar\n", lines: 0, expected: ""}}
+
+	for _, example := range examples {
+		var output bytes.Buffer
+		reader := strings.NewReader(example.source)
+		writeTail(reader, &output, example.lines)
+
+		if example.expected != output.String() {
+			t.Errorf("Expected %s but got %s", example.expected, output.String())
+		}
 	}
 }
