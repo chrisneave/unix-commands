@@ -25,13 +25,13 @@ type tailedFile struct {
 
 func main() {
 	flag.Parse()
-	tailedFiles := make([]tailedFile, flag.NArg())
+	tailedFiles := make([]*tailedFile, flag.NArg())
 	writer := bufio.NewWriter(os.Stdout)
 	var err error
 	var fi os.FileInfo
 
 	for i, arg := range flag.Args() {
-		tailedFiles[i] = tailedFile{filename: arg}
+		tailedFiles[i] = &tailedFile{filename: arg}
 
 		tailedFiles[i].file, err = os.Open(tailedFiles[i].filename)
 		if err != nil {
@@ -53,17 +53,21 @@ func main() {
 	}
 
 	for {
-		for i := 0; i < len(tailedFiles); i++ {
-			if tailedFiles[i].hasChanged() == false {
+		for _, tf := range tailedFiles {
+			if tf.hasChanged() == false {
 				continue
 			}
 
-			tailedFiles[i].lastFileSize = fi.Size()
+			fi, err = tf.file.Stat()
+			if err != nil {
+				log.Fatal(err)
+			}
+			tf.lastFileSize = fi.Size()
 			if len(tailedFiles) > 1 {
-				tailedFiles[i].writeHeaderTo(writer)
+				tf.writeHeaderTo(writer)
 			}
 
-			reader := bufio.NewReader(tailedFiles[i].file)
+			reader := bufio.NewReader(tf.file)
 			for {
 				line, err := reader.ReadString(10)
 				if len(line) > 0 {
