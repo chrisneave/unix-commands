@@ -31,25 +31,26 @@ func main() {
 	var fi os.FileInfo
 
 	for i, arg := range flag.Args() {
-		tailedFiles[i] = &tailedFile{filename: arg}
+		tf := &tailedFile{filename: arg}
+		tailedFiles[i] = tf
 
-		tailedFiles[i].file, err = os.Open(tailedFiles[i].filename)
+		tf.file, err = os.Open(tf.filename)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer tailedFiles[i].file.Close()
+		defer tf.file.Close()
 
-		fi, err = tailedFiles[i].file.Stat()
+		fi, err = tf.Stat()
 		if err != nil {
 			log.Fatal(err)
 		}
-		tailedFiles[i].lastFileSize = fi.Size()
+		tf.lastFileSize = fi.Size()
 
 		if len(tailedFiles) > 1 {
-			tailedFiles[i].writeHeaderTo(writer)
+			tf.writeHeaderTo(writer)
 		}
 
-		tailedFiles[i].offset = writeTail(tailedFiles[i].file, writer, *limit)
+		tf.offset = writeTail(tf.file, writer, *limit)
 	}
 
 	for {
@@ -58,7 +59,7 @@ func main() {
 				continue
 			}
 
-			fi, err = tf.file.Stat()
+			fi, err = tf.Stat()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -82,6 +83,10 @@ func main() {
 
 		time.Sleep(1000 * time.Millisecond)
 	}
+}
+
+func (tf *tailedFile) Stat() (fi os.FileInfo, err error) {
+	return tf.file.Stat()
 }
 
 func appendAndTail(dst []string, src []string, limit int) []string {
