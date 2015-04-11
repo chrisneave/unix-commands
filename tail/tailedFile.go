@@ -15,7 +15,6 @@ type file interface {
 }
 
 type tailedFile struct {
-	filename     string
 	file         file
 	offset       int64
 	lastFileSize int64

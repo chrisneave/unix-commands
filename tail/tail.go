@@ -23,10 +23,10 @@ func main() {
 	var fi os.FileInfo
 
 	for i, arg := range flag.Args() {
-		tf := &tailedFile{filename: arg}
+		tf := &tailedFile{}
 		tailedFiles[i] = tf
 
-		tf.file, err = os.Open(tf.filename)
+		tf.file, err = os.Open(arg)
 		if err != nil {
 			log.Fatal(err)
 		}
