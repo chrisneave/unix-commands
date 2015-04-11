@@ -30,8 +30,10 @@ func (tf *tailedFile) Stat() (fi os.FileInfo, err error) {
 }
 
 func (tf *tailedFile) writeHeaderTo(writer *bufio.Writer) {
-	writer.WriteString(fmt.Sprintf("==> %s <==", tf.filename))
+	fi, _ := tf.file.Stat()
+	writer.WriteString(fmt.Sprintf("==> %s <==", fi.Name()))
 	writer.WriteString("\n")
+	writer.Flush()
 }
 
 func (tf *tailedFile) hasChanged() bool {
