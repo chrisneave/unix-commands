@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,13 +14,6 @@ var (
 	follow = flag.Bool("f", false, "Follow the files being tailed.")
 	limit  = flag.Int("lines", 10, "The number of lines to output from the tailed file")
 )
-
-type tailedFile struct {
-	filename     string
-	file         *os.File
-	offset       int64
-	lastFileSize int64
-}
 
 func main() {
 	flag.Parse()
@@ -85,10 +77,6 @@ func main() {
 	}
 }
 
-func (tf *tailedFile) Stat() (fi os.FileInfo, err error) {
-	return tf.file.Stat()
-}
-
 func appendAndTail(dst []string, src []string, limit int) []string {
 	combined := append(dst, src...)
 	// Limit what we return based on the length of the combined slice.
@@ -128,22 +116,4 @@ func writeTail(input io.Reader, output io.Writer, lineCount int) (newOffset int6
 	}
 	writer.Flush()
 	return
-}
-
-func (tf *tailedFile) writeHeaderTo(writer *bufio.Writer) {
-	writer.WriteString(fmt.Sprintf("==> %s <==", tf.filename))
-	writer.WriteString("\n")
-}
-
-func (tf *tailedFile) hasChanged() bool {
-	fi, err := tf.file.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if fi.Size() == tf.lastFileSize {
-		return false
-	}
-
-	return true
 }
