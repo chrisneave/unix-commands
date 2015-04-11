@@ -58,6 +58,10 @@ func (fr *FakeFile) Sys() interface{} {
 	return nil
 }
 
+func (fr *FakeFile) Close() error {
+	return nil
+}
+
 func TestFakeFileReadReturnsFileContent(t *testing.T) {
 	subject := FakeFile{content: "Some file data"}
 	buffer := make([]byte, len(subject.content))

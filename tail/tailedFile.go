@@ -11,13 +11,18 @@ import (
 type file interface {
 	Stat() (fi os.FileInfo, err error)
 	io.Reader
+	io.Closer
 }
 
 type tailedFile struct {
 	filename     string
-	file         *os.File
+	file         file
 	offset       int64
 	lastFileSize int64
+}
+
+func newTailedFileFromFile(f file) *tailedFile {
+	return &tailedFile{file: f}
 }
 
 func (tf *tailedFile) Stat() (fi os.FileInfo, err error) {
