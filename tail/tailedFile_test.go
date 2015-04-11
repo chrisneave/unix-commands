@@ -2,12 +2,19 @@ package main
 
 import (
 	"io"
+	"os"
 	"testing"
+	"time"
 )
 
 type StringFile struct {
 	content string
 	offset  int64
+	name    string
+	size    int64
+	mode    os.FileMode
+	modTime time.Time
+	isDir   bool
 }
 
 type FakeFile StringFile
@@ -21,6 +28,34 @@ func (fr *FakeFile) Read(b []byte) (n int, err error) {
 		return n, io.EOF
 	}
 	return n, nil
+}
+
+func (fr *FakeFile) Stat() (fi os.FileInfo, err error) {
+	return fr, nil
+}
+
+func (fr *FakeFile) Name() string {
+	return fr.name
+}
+
+func (fr *FakeFile) Size() int64 {
+	return fr.size
+}
+
+func (fr *FakeFile) Mode() os.FileMode {
+	return fr.mode
+}
+
+func (fr *FakeFile) ModTime() time.Time {
+	return fr.modTime
+}
+
+func (fr *FakeFile) IsDir() bool {
+	return fr.isDir
+}
+
+func (fr *FakeFile) Sys() interface{} {
+	return nil
 }
 
 func TestFakeFileReadReturnsFileContent(t *testing.T) {
