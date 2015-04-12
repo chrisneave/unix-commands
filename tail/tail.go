@@ -42,7 +42,11 @@ func main() {
 			tf.writeHeaderTo(writer)
 		}
 
-		tf.offset = writeTail(tf.file, writer, *limit)
+		tf.writeTailTo(writer, *limit)
+	}
+
+	if *follow == false {
+		os.Exit(0)
 	}
 
 	for {

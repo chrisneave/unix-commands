@@ -63,3 +63,36 @@ func TestTailedFileHasChanged(t *testing.T) {
 		t.Error("File has not changed when it should have")
 	}
 }
+
+func TestWriteTailToWritesLinesToWriter(t *testing.T) {
+	examples := []struct {
+		source         string
+		lines          int
+		expectedOutput string
+		expectedOffset int64
+	}{
+		{source: "", lines: 1, expectedOutput: "", expectedOffset: 0},
+		{source: "Foo\n", lines: 1, expectedOutput: "Foo\n", expectedOffset: 4},
+		{source: "Foo", lines: 1, expectedOutput: "Foo\n", expectedOffset: 3},
+		{source: "Foo\nBar\n", lines: 1, expectedOutput: "Bar\n", expectedOffset: 8},
+		{source: "Foo\nBar\n", lines: 2, expectedOutput: "Foo\nBar\n", expectedOffset: 8},
+		{source: "Foo\nBar\n", lines: 3, expectedOutput: "Foo\nBar\n", expectedOffset: 8},
+		{source: "Foo\nBar\n", lines: 0, expectedOutput: "", expectedOffset: 8},
+	}
+
+	for _, example := range examples {
+		ff := FakeFile{content: example.source}
+		tf := newTailedFileFromFile(&ff)
+		var output bytes.Buffer
+
+		tf.writeTailTo(&output, example.lines)
+
+		if example.expectedOutput != output.String() {
+			t.Errorf("writeTailTo('%s', %d) => output = %s, want %s", example.source, example.lines, output.String(), example.expectedOutput)
+		}
+
+		if example.expectedOffset != tf.offset {
+			t.Errorf("writeTailTo('%s', %d) => tf.offset = %d, want %d", example.source, example.lines, tf.offset, example.expectedOffset)
+		}
+	}
+}

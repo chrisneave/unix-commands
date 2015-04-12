@@ -47,3 +47,14 @@ func (tf *tailedFile) hasChanged() bool {
 
 	return true
 }
+
+func (tf *tailedFile) writeTailTo(output io.Writer, lineCount int) {
+	var lines []string
+	lines, tf.offset = tailScan(tf.file, lineCount, 0)
+	writer := bufio.NewWriter(output)
+	for _, line := range lines {
+		writer.WriteString(line)
+		writer.WriteString("\n")
+	}
+	writer.Flush()
+}
