@@ -62,6 +62,20 @@ func (fr *FakeFile) Close() error {
 	return nil
 }
 
+type FakeFileWithStatError StringFile
+
+func (fr *FakeFileWithStatError) Read(b []byte) (n int, err error) {
+	return 0, nil
+}
+
+func (fr *FakeFileWithStatError) Stat() (fi os.FileInfo, err error) {
+	return nil, &os.PathError{}
+}
+
+func (fr *FakeFileWithStatError) Close() error {
+	return nil
+}
+
 func TestFakeFileReadReturnsFileContent(t *testing.T) {
 	subject := FakeFile{content: "Some file data"}
 	buffer := make([]byte, len(subject.content))

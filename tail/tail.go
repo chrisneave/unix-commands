@@ -20,23 +20,21 @@ func main() {
 	tailedFiles := make([]*tailedFile, flag.NArg())
 	writer := bufio.NewWriter(os.Stdout)
 	var err error
+	var file *os.File
 	var fi os.FileInfo
 
 	for i, arg := range flag.Args() {
-		tf := &tailedFile{}
+		file, err = os.Open(arg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		tf, err := newTailedFileFromFile(file)
+		if err != nil {
+			log.Fatal(err)
+		}
 		tailedFiles[i] = tf
-
-		tf.file, err = os.Open(arg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer tf.file.Close()
-
-		fi, err = tf.Stat()
-		if err != nil {
-			log.Fatal(err)
-		}
-		tf.lastFileSize = fi.Size()
 
 		if len(tailedFiles) > 1 {
 			tf.writeHeaderTo(writer)

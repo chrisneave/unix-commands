@@ -20,8 +20,12 @@ type tailedFile struct {
 	lastFileSize int64
 }
 
-func newTailedFileFromFile(f file) *tailedFile {
-	return &tailedFile{file: f}
+func newTailedFileFromFile(f file) (tf *tailedFile, err error) {
+	fi, err := f.Stat()
+	if fi != nil {
+		tf = &tailedFile{file: f, lastFileSize: fi.Size()}
+	}
+	return
 }
 
 func (tf *tailedFile) Stat() (fi os.FileInfo, err error) {

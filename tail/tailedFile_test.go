@@ -7,11 +7,30 @@ import (
 )
 
 func createSubject(file file) *tailedFile {
-	tf := newTailedFileFromFile(file)
+	tf, _ := newTailedFileFromFile(file)
 	if tf == nil {
 		panic("TailedFile is nil")
 	}
 	return tf
+}
+
+func TestNewTailedFileFromFile(t *testing.T) {
+	file := &FakeFile{size: 100}
+	tf, _ := newTailedFileFromFile(file)
+	if tf == nil {
+		t.Fatal("tailedFile could not be created")
+	}
+	if tf.lastFileSize != file.size {
+		t.Errorf("newTailedFileFromFile(file) => tf.lastFileSize = %d, want %d", tf.lastFileSize, file.size)
+	}
+}
+
+func TestNewTailedFileFromFileReturnsErrorFromStat(t *testing.T) {
+	file := &FakeFileWithStatError{}
+	_, err := newTailedFileFromFile(file)
+	if err == nil {
+		t.Fatal("newTailedFileFromFile(file) => err not returned")
+	}
 }
 
 func TestTailedFileStatReturnsFileInfo(t *testing.T) {
@@ -82,7 +101,7 @@ func TestWriteTailToWritesLinesToWriter(t *testing.T) {
 
 	for _, example := range examples {
 		ff := FakeFile{content: example.source}
-		tf := newTailedFileFromFile(&ff)
+		tf := createSubject(&ff)
 		var output bytes.Buffer
 
 		tf.writeTailTo(&output, example.lines)
