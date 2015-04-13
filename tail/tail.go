@@ -107,15 +107,3 @@ func tailScan(source io.Reader, limit int, offset int64) (lines []string, newOff
 	newOffset--
 	return
 }
-
-// Write the last n lines from the input to the output, no seeking.
-func writeTail(input io.Reader, output io.Writer, lineCount int) (newOffset int64) {
-	lines, newOffset := tailScan(input, lineCount, 0)
-	writer := bufio.NewWriter(output)
-	for _, line := range lines {
-		writer.WriteString(line)
-		writer.WriteString("\n")
-	}
-	writer.Flush()
-	return
-}
