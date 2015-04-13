@@ -19,19 +19,18 @@ func testAppendAndTail(t *testing.T, dest []string, src []string, limit int, exp
 
 	// Check length
 	if len(result) != expectedLength {
-		t.Errorf("Length of returned slice should be %d, got %d", expectedLength, len(result))
+		t.Errorf("appendAndTail(%s, %s, %d) => length of result is %d, want %d", dest, src, limit, len(result), expectedLength)
 		return
 	}
 
 	// Check content
 	for i, v := range result {
 		if expected[i] != v {
-			t.Errorf("Expected is %s, Limit is %d, %s should equal %s", expected, limit, v, expected[i])
+			t.Errorf("appendAndTail(%s, %s, %d) => got %s, want %s", dest, src, limit, v, expected[i])
 		}
 	}
 }
 
-// TestAppendAndLimit ...
 func TestAppendAndTail(t *testing.T) {
 	examples := []Example{
 		Example{0, []string{}},
@@ -92,7 +91,7 @@ func BenchmarkAppendAndTail(b *testing.B) {
 	}
 }
 
-func buffersAreEqual(a, b []string) bool {
+func stringBuffersAreEqual(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -110,7 +109,7 @@ func TestTailScan(t *testing.T) {
 	expected := []string{"lines"}
 	reader := strings.NewReader("I have\nthree\nlines")
 	lines, _ := tailScan(reader, 1, 0)
-	if buffersAreEqual(expected, lines) == false {
+	if stringBuffersAreEqual(expected, lines) == false {
 		t.Errorf("Expected %s but got %s", expected, lines)
 	}
 }
@@ -119,7 +118,7 @@ func TestTailScanWithLargeLimit(t *testing.T) {
 	expected := []string{"I have", "three", "lines"}
 	reader := strings.NewReader("I have\nthree\nlines")
 	lines, _ := tailScan(reader, 10, 0)
-	if buffersAreEqual(expected, lines) == false {
+	if stringBuffersAreEqual(expected, lines) == false {
 		t.Errorf("Expected %s but got %s", expected, lines)
 	}
 }
