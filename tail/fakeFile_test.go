@@ -30,6 +30,11 @@ func (fr *FakeFile) Read(b []byte) (n int, err error) {
 	return n, nil
 }
 
+func (fr *FakeFile) Write(b []byte) (n int, err error) {
+	fr.content += string(b)
+	return len(b), nil
+}
+
 func (fr *FakeFile) Stat() (fi os.FileInfo, err error) {
 	return fr, nil
 }
@@ -107,5 +112,20 @@ func TestFakeFileReadStartsFromOffset(t *testing.T) {
 
 	if string(buffer[:bytesRead]) != subject.content[5:] {
 		t.Errorf("Expected '%s' but got '%s'", string(buffer), subject.content[5:])
+	}
+}
+
+func TestFakeFileWrite(t *testing.T) {
+	subject := FakeFile{content: "Hello ", offset: 5}
+	buffer := []byte("World")
+
+	bytesWritten, _ := subject.Write(buffer)
+
+	if subject.content != "Hello World" {
+		t.Errorf("Write() => got %s, want %s", subject.content, "Hello World")
+	}
+
+	if bytesWritten != len(buffer) {
+		t.Errorf("Write() => got %d, want %d", bytesWritten, len(buffer))
 	}
 }
