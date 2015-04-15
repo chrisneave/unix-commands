@@ -62,3 +62,18 @@ func (tf *tailedFile) writeTailTo(output io.Writer, lineCount int) {
 	}
 	writer.Flush()
 }
+
+func (tf *tailedFile) follow(output io.Writer) {
+	reader := bufio.NewReader(tf.file)
+	writer := bufio.NewWriter(output)
+	for {
+		line, err := reader.ReadString(10)
+		if len(line) > 0 {
+			writer.WriteString(line)
+		}
+		if err != nil {
+			writer.Flush()
+			break
+		}
+	}
+}

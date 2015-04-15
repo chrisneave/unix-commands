@@ -62,17 +62,7 @@ func main() {
 				tf.writeHeaderTo(writer)
 			}
 
-			reader := bufio.NewReader(tf.file)
-			for {
-				line, err := reader.ReadString(10)
-				if len(line) > 0 {
-					writer.WriteString(line)
-				}
-				if err != nil {
-					writer.Flush()
-					break
-				}
-			}
+			tf.follow(writer)
 		}
 
 		time.Sleep(1000 * time.Millisecond)

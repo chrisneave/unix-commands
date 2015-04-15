@@ -115,3 +115,40 @@ func TestWriteTailToWritesLinesToWriter(t *testing.T) {
 		}
 	}
 }
+
+func TestFollow(t *testing.T) {
+	examples := []struct {
+		source         string
+		offset         int64
+		expectedOutput string
+	}{
+		{source: "", offset: 0, expectedOutput: ""},
+		{source: "", offset: 0, expectedOutput: "Foo\n"},
+		{source: "", offset: 0, expectedOutput: "Foo"},
+		{source: "Foo\n", offset: 4, expectedOutput: "Bar\n"},
+	}
+
+	for _, example := range examples {
+		ff := FakeFile{
+			content: example.source,
+			offset:  example.offset,
+			size:    int64(len(example.source))}
+		tf := createSubject(&ff)
+		var output bytes.Buffer
+
+		// Follow to get the current content of the file
+		// then Write + follow again to trigger more file
+		// content to be read.
+		tf.follow(&output)
+		ff.Write([]byte(example.expectedOutput))
+		tf.follow(&output)
+
+		if example.expectedOutput != output.String() {
+			t.Errorf("follow() => got %s, want %s", output.String(), example.expectedOutput)
+		}
+
+		if ff.Size() != tf.lastFileSize {
+			t.Errorf("follow() => tf.lastFileSize = %d, want %d", tf.lastFileSize, ff.Size())
+		}
+	}
+}
