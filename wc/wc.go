@@ -10,9 +10,16 @@ type result struct {
 }
 
 func count(input io.Reader) (r result) {
-	lineScanner := bufio.NewScanner(input)
-	for lineScanner.Scan() {
+	reader := bufio.NewReader(input)
+	var newLine byte = 10
+
+	for {
+		_, err := reader.ReadString(newLine)
 		r.lines++
+		if err != nil {
+			break
+		}
 	}
+
 	return
 }

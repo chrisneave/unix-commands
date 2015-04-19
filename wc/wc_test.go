@@ -10,11 +10,11 @@ func TestCountLines(t *testing.T) {
 		source string
 		lines  int64
 	}{
-		{source: "", lines: 0},
-		{source: "\n", lines: 1},
+		{source: "", lines: 1},
+		{source: "\n", lines: 2},
 		{source: "Foo\n", lines: 2},
 		{source: "Foo", lines: 1},
-		{source: "Foo\nBar\n", lines: 2},
+		{source: "Foo\nBar\n", lines: 3},
 		{source: "Foo\nBar\nBaz", lines: 3},
 	}
 
