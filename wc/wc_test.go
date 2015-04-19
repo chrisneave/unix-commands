@@ -26,3 +26,25 @@ func TestCountLines(t *testing.T) {
 		}
 	}
 }
+
+func TestCountWords(t *testing.T) {
+	examples := []struct {
+		source string
+		words  int64
+	}{
+		{source: "", words: 0},
+		{source: "Foo", words: 1},
+		{source: "just three words", words: 3},
+		{source: "Foo\nBar", words: 2},
+		{source: "Foo\nBar\n", words: 2},
+		{source: "Foo\nBar\nBaz", words: 3},
+	}
+
+	for _, example := range examples {
+		reader := strings.NewReader(example.source)
+		result := count(reader)
+		if result.words != example.words {
+			t.Errorf("count(\"%s\") result.words => %d, want %d", example.source, result.words, example.words)
+		}
+	}
+}

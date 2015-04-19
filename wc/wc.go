@@ -3,19 +3,28 @@ package main
 import (
 	"bufio"
 	"io"
+	"strings"
 )
 
 type result struct {
 	lines int64
+	words int64
 }
 
 func count(input io.Reader) (r result) {
-	reader := bufio.NewReader(input)
+	lineReader := bufio.NewReader(input)
 	var newLine byte = 10
 
 	for {
-		_, err := reader.ReadString(newLine)
+		line, err := lineReader.ReadString(newLine)
 		r.lines++
+
+		wordScanner := bufio.NewScanner(strings.NewReader(line))
+		wordScanner.Split(bufio.ScanWords)
+		for wordScanner.Scan() {
+			r.words++
+		}
+
 		if err != nil {
 			break
 		}
