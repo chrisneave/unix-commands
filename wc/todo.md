@@ -1,6 +1,6 @@
 
-[ ] Count lines
-[ ] Count words
-[ ] Count bytes
+[x] Count lines
+[x] Count words
+[x] Count bytes
 [ ] Count characters (account for multibyte characters)
-[ ] Support multiple input files
+[x] Support multiple input files
