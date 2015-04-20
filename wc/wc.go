@@ -2,12 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -42,16 +42,16 @@ type result struct {
 
 func count(input io.Reader) (r result) {
 	lineReader := bufio.NewReader(input)
-	var newLine byte = 10
+	newLine := []byte("\n")
 
 	for {
-		line, err := lineReader.ReadString(newLine)
+		line, err := lineReader.ReadBytes(newLine[0])
 		if len(line) > 0 {
 			r.lines++
 		}
 		r.bytes += int64(len(line))
 
-		wordScanner := bufio.NewScanner(strings.NewReader(line))
+		wordScanner := bufio.NewScanner(bytes.NewReader(line))
 		wordScanner.Split(bufio.ScanWords)
 		for wordScanner.Scan() {
 			r.words++
