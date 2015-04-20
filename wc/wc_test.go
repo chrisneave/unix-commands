@@ -101,3 +101,18 @@ func TestWriteResultsWithTotal(t *testing.T) {
 		t.Errorf("writeResults() => \"%s\", want \"%s\"", output.String(), expected)
 	}
 }
+
+func TestWriteResultsWithFilenamesAndTotal(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	expected := "      10     256    2345 Foo.txt\n    1011   25644234523232 Bar.log\n    1021   25900234525577 total\n"
+	var results []result
+	results = append(results, result{lines: 10, words: 256, bytes: 2345, filename: "Foo.txt"})
+	results = append(results, result{lines: 1011, words: 25644, bytes: 234523232, filename: "Bar.log"})
+
+	writeResults(writer, results)
+
+	if output.String() != expected {
+		t.Errorf("writeResults() => \"%s\", want \"%s\"", output.String(), expected)
+	}
+}

@@ -21,7 +21,9 @@ func main() {
 		}
 		defer file.Close()
 
-		results = append(results, count(file))
+		r := count(file)
+		r.filename = arg
+		results = append(results, r)
 	}
 
 	if len(results) == 0 {
@@ -32,9 +34,10 @@ func main() {
 }
 
 type result struct {
-	lines int64
-	words int64
-	bytes int64
+	lines    int64
+	words    int64
+	bytes    int64
+	filename string
 }
 
 func count(input io.Reader) (r result) {
@@ -66,7 +69,11 @@ func writeResults(output io.Writer, results []result) {
 	var total result
 	writer := bufio.NewWriter(output)
 	for _, r := range results {
-		writer.WriteString(fmt.Sprintf("%8d%8d%8d\n", r.lines, r.words, r.bytes))
+		writer.WriteString(fmt.Sprintf("%8d%8d%8d", r.lines, r.words, r.bytes))
+		if r.filename != "" {
+			writer.WriteString(fmt.Sprintf(" %s", r.filename))
+		}
+		writer.WriteString("\n")
 		total.lines += r.lines
 		total.words += r.words
 		total.bytes += r.bytes
