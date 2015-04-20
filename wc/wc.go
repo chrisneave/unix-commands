@@ -2,16 +2,33 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 )
 
 func main() {
+	flag.Parse()
 	var results []result
-	results = append(results, count(os.Stdin))
-	writeResults(os.Stdout, results)
+
+	for _, arg := range flag.Args() {
+		file, err := os.Open(arg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		results = append(results, count(file))
+		writeResults(os.Stdout, results)
+	}
+
+	if len(results) == 0 {
+		results = append(results, count(os.Stdin))
+		writeResults(os.Stdout, results)
+	}
 }
 
 type result struct {
