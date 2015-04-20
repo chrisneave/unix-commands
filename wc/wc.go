@@ -4,8 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 )
+
+func main() {
+	var results []result
+	results = append(results, count(os.Stdin))
+	writeResults(os.Stdout, results)
+}
 
 type result struct {
 	lines int64
@@ -47,11 +54,8 @@ func count(input io.Reader) (r result) {
 
 func writeResults(output io.Writer, results []result) {
 	writer := bufio.NewWriter(output)
-	for i, r := range results {
-		writer.WriteString(fmt.Sprintf("%8d%8d%8d", r.lines, r.words, r.bytes))
-		if i < len(results)-1 {
-			writer.WriteString("\n")
-		}
+	for _, r := range results {
+		writer.WriteString(fmt.Sprintf("%8d%8d%8d\n", r.lines, r.words, r.bytes))
 	}
 	writer.Flush()
 }
