@@ -48,3 +48,25 @@ func TestCountWords(t *testing.T) {
 		}
 	}
 }
+
+func TestCountBytes(t *testing.T) {
+	examples := []struct {
+		source string
+		bytes  int64
+	}{
+		{source: "", bytes: 0},
+		{source: "Foo", bytes: 4},
+		{source: "just three bytes", bytes: 17},
+		{source: "Foo\nBar", bytes: 8},
+		{source: "Foo\nBar\n", bytes: 9},
+		{source: "Foo\nBar\nBaz", bytes: 12},
+	}
+
+	for _, example := range examples {
+		reader := strings.NewReader(example.source)
+		result := count(reader)
+		if result.bytes != example.bytes {
+			t.Errorf("count(\"%s\") result.bytes => %d, want %d", example.source, result.bytes, example.bytes)
+		}
+	}
+}
