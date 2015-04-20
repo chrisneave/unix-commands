@@ -22,13 +22,13 @@ func main() {
 		defer file.Close()
 
 		results = append(results, count(file))
-		writeResults(os.Stdout, results)
 	}
 
 	if len(results) == 0 {
 		results = append(results, count(os.Stdin))
-		writeResults(os.Stdout, results)
 	}
+
+	writeResults(os.Stdout, results)
 }
 
 type result struct {
