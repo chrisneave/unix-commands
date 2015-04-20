@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -42,4 +43,10 @@ func count(input io.Reader) (r result) {
 	}
 
 	return
+}
+
+func writeResults(output io.Writer, results []result) {
+	writer := bufio.NewWriter(output)
+	writer.WriteString(fmt.Sprintf("%8d%8d%8d", results[0].lines, results[0].words, results[0].bytes))
+	writer.Flush()
 }

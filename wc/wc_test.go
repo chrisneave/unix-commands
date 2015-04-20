@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -68,5 +70,19 @@ func TestCountBytes(t *testing.T) {
 		if result.bytes != example.bytes {
 			t.Errorf("count(\"%s\") result.bytes => %d, want %d", example.source, result.bytes, example.bytes)
 		}
+	}
+}
+
+func TestWriteResults(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	expected := "      10     256    2345"
+	var results []result
+	results = append(results, result{lines: 10, words: 256, bytes: 2345})
+
+	writeResults(writer, results)
+
+	if output.String() != expected {
+		t.Errorf("writeResults() => \"%s\", want \"%s\"", output.String(), expected)
 	}
 }
