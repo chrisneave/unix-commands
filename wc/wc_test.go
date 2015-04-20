@@ -12,11 +12,11 @@ func TestCountLines(t *testing.T) {
 		source string
 		lines  int64
 	}{
-		{source: "", lines: 1},
-		{source: "\n", lines: 2},
-		{source: "Foo\n", lines: 2},
+		{source: "", lines: 0},
+		{source: "\n", lines: 1},
+		{source: "Foo\n", lines: 1},
 		{source: "Foo", lines: 1},
-		{source: "Foo\nBar\n", lines: 3},
+		{source: "Foo\nBar\n", lines: 2},
 		{source: "Foo\nBar\nBaz", lines: 3},
 	}
 
@@ -57,11 +57,11 @@ func TestCountBytes(t *testing.T) {
 		bytes  int64
 	}{
 		{source: "", bytes: 0},
-		{source: "Foo", bytes: 4},
-		{source: "just three bytes", bytes: 17},
-		{source: "Foo\nBar", bytes: 8},
-		{source: "Foo\nBar\n", bytes: 9},
-		{source: "Foo\nBar\nBaz", bytes: 12},
+		{source: "Foo", bytes: 3},
+		{source: "just three bytes", bytes: 16},
+		{source: "Foo\nBar", bytes: 7},
+		{source: "Foo\nBar\n", bytes: 8},
+		{source: "Foo\nBar\nBaz", bytes: 11},
 	}
 
 	for _, example := range examples {
