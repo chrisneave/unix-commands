@@ -63,9 +63,16 @@ func count(input io.Reader) (r result) {
 }
 
 func writeResults(output io.Writer, results []result) {
+	var total result
 	writer := bufio.NewWriter(output)
 	for _, r := range results {
 		writer.WriteString(fmt.Sprintf("%8d%8d%8d\n", r.lines, r.words, r.bytes))
+		total.lines += r.lines
+		total.words += r.words
+		total.bytes += r.bytes
+	}
+	if len(results) > 1 {
+		writer.WriteString(fmt.Sprintf("%8d%8d%8d total\n", total.lines, total.words, total.bytes))
 	}
 	writer.Flush()
 }

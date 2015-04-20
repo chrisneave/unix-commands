@@ -76,7 +76,21 @@ func TestCountBytes(t *testing.T) {
 func TestWriteResults(t *testing.T) {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
-	expected := "      10     256    2345\n    1011   25644234523232\n"
+	expected := "      10     256    2345\n"
+	var results []result
+	results = append(results, result{lines: 10, words: 256, bytes: 2345})
+
+	writeResults(writer, results)
+
+	if output.String() != expected {
+		t.Errorf("writeResults() => \"%s\", want \"%s\"", output.String(), expected)
+	}
+}
+
+func TestWriteResultsWithTotal(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	expected := "      10     256    2345\n    1011   25644234523232\n    1021   25900234525577 total\n"
 	var results []result
 	results = append(results, result{lines: 10, words: 256, bytes: 2345})
 	results = append(results, result{lines: 1011, words: 25644, bytes: 234523232})
