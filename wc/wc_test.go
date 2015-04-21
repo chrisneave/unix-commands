@@ -73,6 +73,13 @@ func TestCountBytes(t *testing.T) {
 	}
 }
 
+func BenchmarkCount(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		reader := strings.NewReader("Fear is the mind killer")
+		_ = count(reader)
+	}
+}
+
 func TestWriteResults(t *testing.T) {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
